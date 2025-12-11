@@ -1,0 +1,62 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+typedef struct No {
+    int valor;
+    int indice;
+    struct No *proximo;
+} No;
+
+void inserirFim(No **cabeca, No **cauda, int val, int idx) {
+    No *novo = (No*)malloc(sizeof(No));
+    novo->valor = val;
+    novo->indice = idx;
+    novo->proximo = NULL;
+    
+    if (*cabeca == NULL) {
+        *cabeca = novo;
+        *cauda = novo;
+    } else {
+        (*cauda)->proximo = novo;
+        *cauda = novo;
+    }
+}
+
+int main() {
+    int N, val, i;
+    No *cabeca = NULL;
+    No *cauda = NULL;
+    
+    scanf("%d", &N);
+    
+    // Preenche a lista encadeada
+    for (i = 0; i < N; i++) {
+        scanf("%d", &val);
+        inserirFim(&cabeca, &cauda, val, i);
+    }
+    
+    int menor = cabeca->valor;
+    int posicao = cabeca->indice;
+    
+    // Percorre a lista
+    No *atual = cabeca->proximo;
+    while (atual != NULL) {
+        if (atual->valor < menor) {
+            menor = atual->valor;
+            posicao = atual->indice;
+        }
+        atual = atual->proximo;
+    }
+    
+    printf("Menor valor: %d\n", menor);
+    printf("Posicao: %d\n", posicao);
+    
+    // Libera memória
+    while (cabeca != NULL) {
+        No *aux = cabeca;
+        cabeca = cabeca->proximo;
+        free(aux);
+    }
+    
+    return 0;
+}
