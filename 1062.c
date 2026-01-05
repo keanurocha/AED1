@@ -1,49 +1,53 @@
 #include <stdio.h>
 
-#define MAX 1005
+#define MAXN 1005
 
 int main() {
-    int N;
-    
-    while (scanf("%d", &N) && N != 0) {
-        int target[MAX];
+    int n, i;
+    while (scanf("%d", &n) == 1 && n != 0) {
         
         while (1) {
-            scanf("%d", &target[0]);
-            if (target[0] == 0) {
+            int vetor[MAXN];
+            scanf("%d", &vetor[0]);
+            
+            if (vetor[0] == 0) {
                 printf("\n");
                 break;
             }
-            
-            for (int i = 1; i < N; i++) {
-                scanf("%d", &target[i]);
+
+            for (i = 1; i < n; i++) {
+                scanf("%d", &vetor[i]);
             }
-            
-            int stack[MAX];
-            int top = 0;
-            int incoming = 1;
-            int possible = 1;
-            int targetIndex = 0;
-            
-            while (targetIndex < N) {
-                if (top > 0 && stack[top] == target[targetIndex]) {
+
+            int pilha[MAXN];
+            int top = 0;       
+            int prox_carro_chegando = 1;       
+            int i_vetor = 0;          
+
+            while (i_vetor < n) {
+                if (prox_carro_chegando <= n && prox_carro_chegando == vetor[i_vetor]) {
+                    prox_carro_chegando++;
+                    i_vetor++;
+                }
+                else if (top > 0 && pilha[top - 1] == vetor[i_vetor]) {
                     top--;
-                    targetIndex++;
-                } else if (incoming <= N) {
-                    stack[++top] = incoming++;
-                } else {
-                    possible = 0;
+                    i_vetor++;
+                }
+                else if (prox_carro_chegando <= n) {
+                    pilha[top++] = prox_carro_chegando;
+                    prox_carro_chegando++;
+                }
+                else {
                     break;
                 }
             }
-            
-            if (possible) {
+
+            if (i_vetor == n) {
                 printf("Yes\n");
             } else {
                 printf("No\n");
             }
         }
     }
-    
     return 0;
 }
