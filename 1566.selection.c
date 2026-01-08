@@ -1,47 +1,38 @@
 #include <stdio.h>
-#include <string.h>
 
-// O array para contar a frequência de cada altura.
-// O tamanho é 231 para cobrir os índices de 0 a 230.
-// 'static' garante que ele seja inicializado com zeros.
-static int frequenciaAlturas[231];
+int v[3000005];
 
-int main() {
-    int NC; // Número de Casos de Teste
-    scanf("%d", &NC);
-
-    // Loop para cada cidade (caso de teste)
-    while (NC--) {
-        int N; // Número de pessoas na cidade
-        scanf("%d", &N);
-
-        // Zera o array de frequência para o novo caso de teste.
-        // Essencial para não misturar dados de cidades diferentes.
-        memset(frequenciaAlturas, 0, sizeof(frequenciaAlturas));
-
-        // Fase de contagem: lê cada altura e incrementa seu contador.
-        for (int i = 0; i < N; i++) {
-            int h;
-            scanf("%d", &h);
-            frequenciaAlturas[h]++;
+void selectionSort(int v[], int n) {
+    for (int i = 0; i < n - 1; i++) {
+        int min = i;
+        for (int j = i + 1; j < n; j++) {
+            if (v[j] < v[min])
+                min = j;
         }
+        if (min != i) {
+            int tmp = v[i];
+            v[i] = v[min];
+            v[min] = tmp;
+        }
+    }
+}
 
-        // Fase de impressão (ou "seleção" ordenada)
-        int primeiroElemento = 1; // Flag para controlar o espaço em branco
+int main(void) {
+    int t, n;
+    if (scanf("%d", &t) != 1) return 0;
+
+    while (t--) {
+        if (scanf("%d", &n) != 1) break;
         
-        // Itera por todas as alturas possíveis, do menor (20) ao maior (230)
-        for (int h = 20; h <= 230; h++) {
-            // "Seleciona" a altura 'h' e a imprime o número de vezes que ela apareceu
-            for (int i = 0; i < frequenciaAlturas[h]; i++) {
-                if (primeiroElemento) {
-                    printf("%d", h);
-                    primeiroElemento = 0; // Desativa a flag após o primeiro número
-                } else {
-                    printf(" %d", h);
-                }
-            }
+        for (int i = 0; i < n; i++)
+            scanf("%d", &v[i]);
+
+        selectionSort(v, n);
+
+        for (int i = 0; i < n; i++) {
+            printf("%d%s", v[i], (i == n - 1) ? "" : " ");
         }
-        printf("\n"); // Pula uma linha ao final de cada caso de teste
+        printf("\n");
     }
 
     return 0;
