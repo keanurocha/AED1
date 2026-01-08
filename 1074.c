@@ -1,25 +1,21 @@
 #include <stdio.h>
 
 int main() {
-    int N, X;
+    int total, i;
+    int num;
 
-    scanf("%d", &N);
+    if (scanf("%d", &total) != 1) return 0;
 
-    while (N--) {
-        scanf("%d", &X);
+    for (i = 0; i < total; i++) {
+        scanf("%d", &num);
 
-        if (X == 0) {
+        if (num == 0) {
             printf("NULL\n");
         } else {
-            if (X % 2 == 0) printf("EVEN");
-            else printf("ODD");
-
-            printf(" ");
-
-            if (X > 0) printf("POSITIVE");
-            else printf("NEGATIVE");
-
-            printf("\n");
+            const char *tipo = (num % 2 == 0) ? "EVEN" : "ODD";
+            const char *polaridade = (num > 0) ? "POSITIVE" : "NEGATIVE";
+            
+            printf("%s %s\n", tipo, polaridade);
         }
     }
 
