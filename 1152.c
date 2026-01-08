@@ -1,77 +1,75 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#define MAX_EDGES 200005
-#define MAX_NODES 200005
-
 typedef struct {
-    int u, v, w;
-} Edge;
+    int u, v, peso;
+} Aresta;
 
-Edge edges[MAX_EDGES];
-int parent[MAX_NODES];
+int pai[200005], tamanho[200005];
 
-// Função de comparação para o qsort
-int compare(const void *a, const void *b) {
-    return ((Edge*)a)->w - ((Edge*)b)->w;
+int encontrar(int x) {
+    if (pai[x] == x) return x;
+    return pai[x] = encontrar(pai[x]);
 }
 
-// Função Find do Union-Find (com compressão de caminho)
-int find(int i) {
-    if (parent[i] == i)
-        return i;
-    return parent[i] = find(parent[i]);
-}
+void unir(int a, int b) {
+    a = encontrar(a);
+    b = encontrar(b);
+    if (a == b) return;
 
-// Função Union do Union-Find
-void unite(int i, int j) {
-    int root_i = find(i);
-    int root_j = find(j);
-    if (root_i != root_j) {
-        parent[root_i] = root_j;
+    if (tamanho[a] < tamanho[b]) {
+        pai[a] = b;
+        tamanho[b] += tamanho[a];
+    } else {
+        pai[b] = a;
+        tamanho[a] += tamanho[b];
     }
 }
 
+int comparar(const void *a, const void *b) {
+    Aresta *x = (Aresta*) a;
+    Aresta *y = (Aresta*) b;
+    return x->peso - y->peso;
+}
+
 int main() {
-    int m, n;
+    int n, m;
 
-    // Loop até que m e n sejam 0
-    while (scanf("%d %d", &m, &n) && (m != 0 || n != 0)) {
-        long long total_cost = 0;
+    while (1) {
+        scanf("%d %d", &n, &m);
+        if (n == 0 && m == 0) break;
 
-        // Leitura das arestas
+        Aresta *arestas = (Aresta*) malloc(m * sizeof(Aresta));
+        long long soma_total = 0;
+
         for (int i = 0; i < n; i++) {
-            scanf("%d %d %d", &edges[i].u, &edges[i].v, &edges[i].w);
-            total_cost += edges[i].w;
+            pai[i] = i;
+            tamanho[i] = 1;
         }
 
-        // Ordena as arestas pelo peso (menor para o maior)
-        qsort(edges, n, sizeof(Edge), compare);
-
-        // Inicializa o Union-Find
         for (int i = 0; i < m; i++) {
-            parent[i] = i;
+            scanf("%d %d %d", &arestas[i].u, &arestas[i].v, &arestas[i].peso);
+            soma_total += arestas[i].peso;
         }
 
-        long long mst_cost = 0;
-        int edges_count = 0;
+        qsort(arestas, m, sizeof(Aresta), comparar);
 
-        // Algoritmo de Kruskal
-        for (int i = 0; i < n; i++) {
-            int u = edges[i].u;
-            int v = edges[i].v;
-            int w = edges[i].w;
+        long long custo_mst = 0;
 
-            // Se u e v não estão no mesmo componente, une-os
-            if (find(u) != find(v)) {
-                unite(u, v);
-                mst_cost += w;
-                edges_count++;
+        for (int i = 0; i < m; i++) {
+            int u = arestas[i].u;
+            int v = arestas[i].v;
+            int p = arestas[i].peso;
+
+            if (encontrar(u) != encontrar(v)) {
+                unir(u, v);
+                custo_mst += p;
             }
         }
 
-        // A economia é o custo total original menos o custo da MST
-        printf("%lld\n", total_cost - mst_cost);
+        printf("%lld\n", soma_total - custo_mst);
+
+        free(arestas);
     }
 
     return 0;
