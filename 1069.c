@@ -1,28 +1,29 @@
 #include <stdio.h>
-#include <string.h>
 
 int main() {
-    int n;
-    scanf("%d", &n);
-    while (n--) {
-        char mine[1001];
-        scanf("%s", mine);
-        
-        int open_brackets = 0;
-        int diamonds = 0;
-        int len = strlen(mine);
-        
-        for (int i = 0; i < len; i++) {
-            if (mine[i] == '<') {
-                open_brackets++;
-            } else if (mine[i] == '>') {
-                if (open_brackets > 0) {
-                    diamonds++;
-                    open_brackets--;
+    int t;
+    if (scanf("%d", &t) != 1) return 0;
+
+    while (t--) {
+        char s[1005];
+        scanf("%s", s);
+
+        int c = 0;
+        int sum = 0;
+        char *p = s;
+
+        while (*p != '\0') {
+            if (*p == '<') {
+                c++;
+            } else if (*p == '>') {
+                if (c > 0) {
+                    sum++;
+                    c--;
                 }
             }
+            p++;
         }
-        printf("%d\n", diamonds);
+        printf("%d\n", sum);
     }
     return 0;
 }
