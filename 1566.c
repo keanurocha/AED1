@@ -1,39 +1,36 @@
 #include <stdio.h>
-#include <string.h> 
-
-int contagemAlturas[231];
 
 int main() {
-    int NC; 
-    scanf("%d", &NC);
+    int casos, quantidade, altura;
+    int contagem[231]; 
+    
+    scanf("%d", &casos);
 
-    while (NC--) {
-        int N; 
-        scanf("%d", &N);
+    while (casos--) {
+        for (int i = 0; i <= 230; i++) {
+            contagem[i] = 0;
+        }
 
-        memset(contagemAlturas, 0, sizeof(contagemAlturas));
+        scanf("%d", &quantidade);
 
-        for (int i = 0; i < N; i++) {
-            int altura;
+        for (int i = 0; i < quantidade; i++) {
             scanf("%d", &altura);
-            contagemAlturas[altura]++;
+            contagem[altura]++;
         }
 
         int primeiro = 1;
 
-        for (int h = 20; h <= 230; h++) {
-            
-            for (int j = 0; j < contagemAlturas[h]; j++) {
-                if (primeiro) {
-                    printf("%d", h);
-                    primeiro = 0; 
-                } else {
-                    printf(" %d", h); 
+        for (int i = 20; i <= 230; i++) {
+            while (contagem[i] > 0) {
+                if (!primeiro) {
+                    printf(" ");
                 }
+                printf("%d", i);
+                primeiro = 0;
+                contagem[i]--;
             }
         }
-
-        printf("\n"); 
+        printf("\n");
     }
 
     return 0;
