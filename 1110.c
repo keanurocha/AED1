@@ -1,60 +1,58 @@
 #include <stdio.h>
 
-// Define um tamanho máximo para o array, seguro para n <= 50
-// Precisamos de espaço extra porque movemos cartas do início para o fim
-#define MAX_SIZE 101 
+int main()
+{
+    int entrada = 0;
 
-int main() {
-    int n;
-    int pilha[MAX_SIZE];
-    int descartadas[50]; // No máximo n-1 cartas são descartadas
-    int inicio, fim;
-    int i, count_descartadas;
+    scanf("%d", &entrada);
 
-    // Loop principal para ler os casos de teste
-    while (scanf("%d", &n) == 1 && n != 0) {
+    while (entrada != 0)
+    {
+        int fila[100];
+
+        int t = entrada;
         
-        // --- Inicialização para o caso de teste atual ---
-        
-        // Preenche a pilha com cartas de 1 a n
-        for (i = 0; i < n; i++) {
-            pilha[i] = i + 1;
+        int pop[entrada];
+
+        for (int i = 0; i < entrada; i++)
+        {
+            fila[i] = (entrada - t + 1);
+            t--;
         }
 
-        inicio = 0;             // O topo da pilha está no índice 0
-        fim = n;                // O próximo espaço livre está no índice n
-        count_descartadas = 0;  // Nenhuma carta descartada ainda
+        int tam = entrada;
 
-        // --- Simulação ---
+        t = entrada;
+        
+        int p = 0;
+        int s = 0;
 
-        // O laço continua enquanto houver 2 ou mais cartas na pilha
-        // (a quantidade de cartas é fim - inicio)
-        while ((fim - inicio) >= 2) {
-            // 1. Joga fora a carta do topo (pilha[inicio])
-            descartadas[count_descartadas] = pilha[inicio];
-            count_descartadas++;
-            inicio++; // Move o ponteiro do início para a próxima carta
-
-            // 2. Move a nova carta do topo (pilha[inicio]) para a base (pilha[fim])
-            pilha[fim] = pilha[inicio];
-            fim++;    // Aumenta o tamanho da pilha no final
-            inicio++; // Remove a carta do início
+        while (tam > 1)
+        {
+            pop[p++] = fila[s];
+            s = s + 1;
+            tam--;
+            fila[t] = fila[s++];
+            t = t + 1;
         }
 
-        // --- Impressão dos resultados ---
+        
+        printf("Discarded cards: ");
 
-        printf("Discarded cards:");
-        if (count_descartadas > 0) {
-            printf(" %d", descartadas[0]);
-            for (i = 1; i < count_descartadas; i++) {
-                printf(", %d", descartadas[i]);
+        for (int i = 0; i < (entrada - 1); i++)
+        {
+            if (i == entrada - 2)
+            {
+                printf("%d", pop[i]);
+                break;
+
             }
+            printf("%d, ", pop[i]);
         }
-        printf("\n");
 
-        // A carta remanescente é a única que sobrou na pilha, na posição 'inicio'
-        printf("Remaining card: %d\n", pilha[inicio]);
+        printf("\nRemaining card: %d\n", fila[s]);
+
+        scanf("%d", &entrada);
     }
-
-    return 0;
+ 
 }
