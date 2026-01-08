@@ -1,100 +1,98 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-// Definição da estrutura do nó da árvore
-typedef struct Node {
+typedef struct No {
     int valor;
-    struct Node *esquerda;
-    struct Node *direita;
-} Node;
+    struct No *esq, *dir;
+} No;
 
-// Função para criar um novo nó
-Node* criarNo(int valor) {
-    Node* novoNo = (Node*)malloc(sizeof(Node));
-    novoNo->valor = valor;
-    novoNo->esquerda = NULL;
-    novoNo->direita = NULL;
-    return novoNo;
+No* criar_no(int valor) {
+    No *novo = (No*) malloc(sizeof(No));
+    novo->valor = valor;
+    novo->esq = novo->dir = NULL;
+    return novo;
 }
 
-// Função para inserir um valor na Árvore Binária de Busca
-Node* inserir(Node* raiz, int valor) {
-    if (raiz == NULL) {
-        return criarNo(valor);
-    }
-    if (valor < raiz->valor) {
-        raiz->esquerda = inserir(raiz->esquerda, valor);
-    } else if (valor > raiz->valor) {
-        raiz->direita = inserir(raiz->direita, valor);
-    }
+No* inserir(No *raiz, int valor) {
+    if (raiz == NULL) return criar_no(valor);
+
+    if (valor < raiz->valor)
+        raiz->esq = inserir(raiz->esq, valor);
+    else
+        raiz->dir = inserir(raiz->dir, valor);
+
     return raiz;
 }
 
-// Função para realizar o percurso em largura (BFS) usando uma fila
-void bfs(Node* raiz) {
+typedef struct {
+    No *fila[2000];
+    int ini, fim;
+} Fila;
+
+void iniciar_fila(Fila *q) {
+    q->ini = q->fim = 0;
+}
+
+void enfileirar(Fila *q, No *x) {
+    q->fila[q->fim++] = x;
+}
+
+No* desenfileirar(Fila *q) {
+    return q->fila[q->ini++];
+}
+
+int fila_vazia(Fila *q) {
+    return q->ini == q->fim;
+}
+
+void percorrer_por_nivel(No *raiz) {
     if (raiz == NULL) return;
 
-    // Fila simples usando um array de ponteiros para nós
-    // Como N <= 500, um array de tamanho 505 é seguro
-    Node* fila[505];
-    int frente = 0;
-    int tras = 0;
+    Fila q;
+    iniciar_fila(&q);
+    enfileirar(&q, raiz);
 
-    // Enfileira a raiz
-    fila[tras++] = raiz;
+    int primeiro = 1;
 
-    int primeiro = 1; // Flag para controlar os espaços
+    while (!fila_vazia(&q)) {
+        No *atual = desenfileirar(&q);
 
-    while (frente < tras) {
-        // Desenfileira o nó atual
-        Node* atual = fila[frente++];
-
-        // Imprime o valor com formatação de espaço correta
-        if (!primeiro) {
-            printf(" ");
-        }
+        if (!primeiro) printf(" ");
         printf("%d", atual->valor);
         primeiro = 0;
 
-        // Enfileira os filhos se existirem
-        if (atual->esquerda != NULL) {
-            fila[tras++] = atual->esquerda;
-        }
-        if (atual->direita != NULL) {
-            fila[tras++] = atual->direita;
-        }
+        if (atual->esq) enfileirar(&q, atual->esq);
+        if (atual->dir) enfileirar(&q, atual->dir);
     }
     printf("\n");
 }
 
-// Função para liberar a memória da árvore
-void liberarArvore(Node* raiz) {
+void liberar_arvore(No *raiz) {
     if (raiz == NULL) return;
-    liberarArvore(raiz->esquerda);
-    liberarArvore(raiz->direita);
+    liberar_arvore(raiz->esq);
+    liberar_arvore(raiz->dir);
     free(raiz);
 }
 
 int main() {
-    int C, i;
-    scanf("%d", &C);
+    int t, n, valor;
+    scanf("%d", &t);
 
-    for (i = 1; i <= C; i++) {
-        int N, j, valor;
-        scanf("%d", &N);
+    for (int caso = 1; caso <= t; caso++) {
+        scanf("%d", &n);
 
-        Node* raiz = NULL;
+        No *raiz = NULL;
 
-        for (j = 0; j < N; j++) {
+        for (int i = 0; i < n; i++) {
             scanf("%d", &valor);
             raiz = inserir(raiz, valor);
         }
 
-        printf("Case %d:\n", i);
-        bfs(raiz);
-        printf("\n"); // Linha em branco exigida após cada caso de teste
+        printf("Case %d:\n", caso);
+        percorrer_por_nivel(raiz);
+        printf("\n");
 
-        liberarArvore(raiz);
+        liberar_arvore(raiz);
     }
 
     return 0;
