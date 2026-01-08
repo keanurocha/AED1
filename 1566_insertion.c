@@ -1,38 +1,32 @@
 #include <stdio.h>
-#include <string.h>
 
-#define MAX_ALTURA 231
-
-static int frequenciaAlturas[MAX_ALTURA];
-
-int main() {
-    int NC;
-    scanf("%d", &NC);
-
-    while (NC--) {
-        int N;
-        scanf("%d", &N);
-
-        memset(frequenciaAlturas, 0, sizeof(frequenciaAlturas));
-
-        for (int i = 0; i < N; i++) {
-            int h;
-            scanf("%d", &h);
-            frequenciaAlturas[h]++;
+void insertionSort(int v[], int n) {
+    for (int i = 1; i < n; i++) {
+        int chave = v[i];
+        int j = i - 1;
+        while (j >= 0 && v[j] > chave) {
+            v[j + 1] = v[j];
+            j--;
         }
+        v[j + 1] = chave;
+    }
+}
 
-        int primeiro = 1;
-        for (int h = 20; h < MAX_ALTURA; h++) {
-            if (frequenciaAlturas[h] > 0) {
-                for (int i = 0; i < frequenciaAlturas[h]; i++) {
-                    if (primeiro) {
-                        printf("%d", h);
-                        primeiro = 0;
-                    } else {
-                        printf(" %d", h);
-                    }
-                }
-            }
+int main(void) {
+    int t, n;
+    scanf("%d", &t);
+
+    while (t--) {
+        scanf("%d", &n);
+        int v[n];
+        for (int i = 0; i < n; i++)
+            scanf("%d", &v[i]);
+
+        insertionSort(v, n);
+
+        for (int i = 0; i < n; i++) {
+            if (i) printf(" ");
+            printf("%d", v[i]);
         }
         printf("\n");
     }
