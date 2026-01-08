@@ -1,34 +1,24 @@
 #include <stdio.h>
-#include <stdlib.h>
 
-int main() {
-    int N, i;
+int main(){
+    int n, i, x, z;
     int menor, posicao;
+    scanf("%d", &n);
+    int vetor[n];
     
-    scanf("%d", &N);
-    
-    // Alocação dinâmica da lista (vetor)
-    int *X = (int*)malloc(N * sizeof(int));
-    
-    for (i = 0; i < N; i++) {
-        scanf("%d", &X[i]);
+    for(i=0; i < n; i++){
+        scanf("%d", &z);
+        vetor[i] = z;
     }
-    
-    // Inicializa com o primeiro elemento
-    menor = X[0];
-    posicao = 0;
-    
-    // Percorre a lista para encontrar o menor
-    for (i = 1; i < N; i++) {
-        if (X[i] < menor) {
-            menor = X[i];
+    menor = vetor[0];
+    for(i=1; i < n; i++){
+        if(vetor[i] < menor){
+            menor = vetor[i];
             posicao = i;
         }
     }
-    
     printf("Menor valor: %d\n", menor);
     printf("Posicao: %d\n", posicao);
     
-    free(X);
     return 0;
 }
