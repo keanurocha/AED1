@@ -1,58 +1,31 @@
 #include <stdio.h>
 
-int main()
-{
-    int entrada = 0;
+int main() {
+    int n;
 
-    scanf("%d", &entrada);
+    while (scanf("%d", &n) == 1 && n != 0) {
+        int deck[2000];
+        int descartados[1000];
+        int inicio = 0;
+        int fim = n;
+        int d_idx = 0;
 
-    while (entrada != 0)
-    {
-        int fila[100];
-
-        int t = entrada;
-        
-        int pop[entrada];
-
-        for (int i = 0; i < entrada; i++)
-        {
-            fila[i] = (entrada - t + 1);
-            t--;
+        for (int i = 0; i < n; i++) {
+            deck[i] = i + 1;
         }
 
-        int tam = entrada;
-
-        t = entrada;
-        
-        int p = 0;
-        int s = 0;
-
-        while (tam > 1)
-        {
-            pop[p++] = fila[s];
-            s = s + 1;
-            tam--;
-            fila[t] = fila[s++];
-            t = t + 1;
+        while ((fim - inicio) >= 2) {
+            descartados[d_idx++] = deck[inicio++];
+            deck[fim++] = deck[inicio++];
         }
 
-        
-        printf("Discarded cards: ");
-
-        for (int i = 0; i < (entrada - 1); i++)
-        {
-            if (i == entrada - 2)
-            {
-                printf("%d", pop[i]);
-                break;
-
-            }
-            printf("%d, ", pop[i]);
+        printf("Discarded cards:");
+        for (int j = 0; j < d_idx; j++) {
+            printf(" %d%s", descartados[j], (j == d_idx - 1) ? "" : ",");
         }
-
-        printf("\nRemaining card: %d\n", fila[s]);
-
-        scanf("%d", &entrada);
+        
+        printf("\nRemaining card: %d\n", deck[inicio]);
     }
- 
+
+    return 0;
 }
