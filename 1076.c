@@ -1,42 +1,47 @@
 #include <stdio.h>
-#include <string.h>
 
-#define MAX_NODES 100
+void dfs(int u);
+
+int g[1000][1000];
+int used[1000];
+int n, count;
 
 int main() {
-    int T;
-    scanf("%d", &T);
 
-    while (T--) {
-        int startNode;
-        scanf("%d", &startNode); // Lê o ponto de partida (não afeta o cálculo em árvores)
+    int t;
+    scanf("%d", &t);
 
-        int V, A;
-        scanf("%d %d", &V, &A);
+    while (t--) {
+        int start, m, a, b;
+        scanf("%d %d %d", &start, &n, &m);
 
-        // Matriz para rastrear quais arestas já foram contadas
-        // (para lidar com a possibilidade de arestas repetidas 4-1 e 1-4)
-        int adj[MAX_NODES][MAX_NODES];
-        memset(adj, 0, sizeof(adj));
-
-        int uniqueEdges = 0;
-
-        for (int i = 0; i < A; i++) {
-            int u, v;
-            scanf("%d %d", &u, &v);
-
-            // Verifica se a aresta já foi processada (grafo não direcionado)
-            if (!adj[u][v]) {
-                adj[u][v] = 1;
-                adj[v][u] = 1; // Marca o inverso também
-                uniqueEdges++;
-            }
+        for (int i = 0; i < n; i++) {
+            used[i] = 0;
+            for (int j = 0; j < n; j++)
+                g[i][j] = 0;
         }
 
-        // Como não há ciclos (é uma árvore), percorrer tudo e voltar
-        // requer passar por cada aresta 2 vezes.
-        printf("%d\n", uniqueEdges * 2);
+        for (int i = 0; i < m; i++) {
+            scanf("%d %d", &a, &b);
+            g[a][b] = g[b][a] = 1;
+        }
+
+        count = 0;
+        dfs(start);
+
+        printf("%d\n", count);
     }
 
     return 0;
+}
+
+void dfs(int u) {
+    used[u] = 1;
+    for (int v = 0; v < n; v++) {
+        if (g[u][v] && !used[v]) {
+            count++;
+            dfs(v);
+            count++;
+        }
+    }
 }
