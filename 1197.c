@@ -1,13 +1,11 @@
 #include <stdio.h>
 
 int main() {
-    int v, t;
-    
-    // Lê os valores de velocidade (v) e tempo (t) até o final do arquivo (EOF)
-    while (scanf("%d %d", &v, &t) != EOF) {
-        // A fórmula para o deslocamento no dobro do tempo, assumindo partida do repouso,
-        // simplifica para 2 * v * t
-        printf("%d\n", 2 * v * t);
+    int velocidade, tempo;
+
+    while (scanf("%d %d", &velocidade, &tempo) != EOF) {
+        int deslocamento = velocidade * (2 * tempo);
+        printf("%d\n", deslocamento);
     }
 
     return 0;
