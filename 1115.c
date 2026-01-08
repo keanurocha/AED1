@@ -1,17 +1,21 @@
 #include <stdio.h>
 
 int main() {
-    int x, y;
+    int h, v;
 
-    while (scanf("%d %d", &x, &y) && x != 0 && y != 0) {
-        if (x > 0 && y > 0) {
-            printf("primeiro\n");
-        } else if (x < 0 && y > 0) {
-            printf("segundo\n");
-        } else if (x < 0 && y < 0) {
-            printf("terceiro\n");
+    while (scanf("%d %d", &h, &v) == 2 && h != 0 && v != 0) {
+        if (h > 0) {
+            if (v > 0) {
+                printf("primeiro\n");
+            } else {
+                printf("quarto\n");
+            }
         } else {
-            printf("quarto\n");
+            if (v > 0) {
+                printf("segundo\n");
+            } else {
+                printf("terceiro\n");
+            }
         }
     }
 
