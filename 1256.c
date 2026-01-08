@@ -1,92 +1,47 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-// Definição da estrutura do nó para a lista encadeada
-typedef struct Node {
-    int valor;
-    struct Node *proximo;
-} Node;
-
-// Função para criar e inserir um novo nó no final da lista
-void inserir(Node **tabela, int indice, int valor) {
-    // Aloca memória para o novo nó
-    Node *novoNo = (Node *)malloc(sizeof(Node));
-    novoNo->valor = valor;
-    novoNo->proximo = NULL;
-
-    // Se a lista naquele índice estiver vazia, o novo nó será a cabeça
-    if (tabela[indice] == NULL) {
-        tabela[indice] = novoNo;
-    } else {
-        // Se não, percorre até o final da lista para inserir
-        Node *atual = tabela[indice];
-        while (atual->proximo != NULL) {
-            atual = atual->proximo;
-        }
-        atual->proximo = novoNo;
-    }
-}
-
-// Função para imprimir a tabela
-void imprimirTabela(Node **tabela, int M) {
-    for (int i = 0; i < M; i++) {
-        printf("%d -> ", i);
-        
-        Node *atual = tabela[i];
-        while (atual != NULL) {
-            printf("%d -> ", atual->valor);
-            atual = atual->proximo;
-        }
-        // O caractere '\' é especial, então usamos '\\' para imprimir uma barra invertida
-        printf("\\\n");
-    }
-}
-
-// Função para liberar a memória alocada
-void liberarTabela(Node **tabela, int M) {
-    for (int i = 0; i < M; i++) {
-        Node *atual = tabela[i];
-        while (atual != NULL) {
-            Node *temp = atual;
-            atual = atual->proximo;
-            free(temp);
-        }
-    }
-}
-
 int main() {
-    int N; // Quantidade de casos de teste
-    scanf("%d", &N);
+    int t;
+    if (scanf("%d", &t) != 1) return 0;
 
-    while (N--) {
-        int M, C;
-        // M = endereços-base (tamanho da tabela)
-        // C = quantidade de chaves
-        scanf("%d %d", &M, &C);
+    for (int caso = 0; caso < t; caso++) {
+        int m, c;
+        scanf("%d %d", &m, &c);
 
-        // Cria a tabela hash (array de ponteiros para Nodes)
-        // Calloc inicializa tudo com NULL
-        Node *tabela[100]; // O problema diz que M <= 100, então estático é seguro e rápido
-        for(int i = 0; i < M; i++) tabela[i] = NULL;
-
-        // Leitura e inserção das chaves
-        for (int i = 0; i < C; i++) {
-            int chave;
-            scanf("%d", &chave);
-            int indice = chave % M; // Função de dispersão h(x) = x mod M
-            inserir(tabela, indice, chave);
+        int **tabela = (int**) malloc(m * sizeof(int*));
+        for (int i = 0; i < m; i++) {
+            tabela[i] = (int*) malloc(c * sizeof(int));
+            for (int j = 0; j < c; j++) tabela[i][j] = -1;
         }
 
-        // Imprime o resultado formatado
-        imprimirTabela(tabela, M);
-
-        // Libera a memória usada neste caso de teste
-        liberarTabela(tabela, M);
-
-        // Se houver mais casos de teste, imprime uma linha em branco entre eles
-        if (N > 0) {
-            printf("\n");
+        for (int k = 0; k < c; k++) {
+            int valor;
+            scanf("%d", &valor);
+            int pos = valor % m;
+            for (int j = 0; j < c; j++) {
+                if (tabela[pos][j] == -1) {
+                    tabela[pos][j] = valor;
+                    break;
+                }
+            }
         }
+
+        for (int i = 0; i < m; i++) {
+            printf("%d -> ", i);
+            for (int j = 0; j < c; j++) {
+                if (tabela[i][j] == -1) break;
+                printf("%d -> ", tabela[i][j]);
+            }
+            printf("\\\n"); 
+        }
+
+       
+        if (caso != t - 1) printf("\n");
+
+      
+        for (int i = 0; i < m; i++) free(tabela[i]);
+        free(tabela);
     }
 
     return 0;
