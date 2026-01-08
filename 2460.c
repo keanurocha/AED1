@@ -1,49 +1,44 @@
 #include <stdio.h>
 #include <string.h>
+#include <stdbool.h>
 
-// Definimos o tamanho máximo para os identificadores (100000)
-// e para o número de pessoas na fila (50000)
-#define MAX_ID 100001
-#define MAX_N 50001
+typedef struct {
+    unsigned short numero;  
+    unsigned short posicao;  
+} Pessoa;
 
-int fila[MAX_N];
-int saiu[MAX_ID]; // Array usado como tabela Hash/Lookup para acesso rápido (O(1))
+int main(void) {
 
-int main() {
-    int N, M, id;
+    unsigned short qtsPessoas, qtsPessoasSairam;
+    unsigned short i, idPessoa;
+    Pessoa fila[51000];
 
-    // Leitura da quantidade inicial de pessoas
-    scanf("%d", &N);
+    scanf("%hu", &qtsPessoas);
 
-    // Leitura dos identificadores da fila inicial
-    for (int i = 0; i < N; i++) {
-        scanf("%d", &fila[i]);
+    memset(fila, 0, sizeof(fila));
+
+    for (i = 0; i < qtsPessoas; i++) {
+        scanf("%hu", &idPessoa);
+        fila[i].numero = idPessoa;
+        fila[idPessoa].posicao = i;
     }
 
-    // Leitura da quantidade de pessoas que saíram
-    scanf("%d", &M);
-
-    // Inicializa o array de "saiu" com 0
-    memset(saiu, 0, sizeof(saiu));
-
-    // Leitura dos que saíram. Marcamos 1 na posição do ID da pessoa.
-    for (int i = 0; i < M; i++) {
-        scanf("%d", &id);
-        saiu[id] = 1;
+    scanf("%hu", &qtsPessoasSairam);
+    for (i = 0; i < qtsPessoasSairam; i++) {
+        scanf("%hu", &idPessoa);
+        fila[fila[idPessoa].posicao].numero = 0;
     }
 
-    // Percorre a fila inicial e imprime apenas quem não está marcado no array 'saiu'
-    int primeiro = 1;
-    for (int i = 0; i < N; i++) {
-        if (!saiu[fila[i]]) {
-            if (!primeiro) {
+    bool primeiro = true;
+    for (i = 0; i < qtsPessoas; i++) {
+        if (fila[i].numero != 0) {
+            if (!primeiro)
                 printf(" ");
-            }
-            printf("%d", fila[i]);
-            primeiro = 0;
+            printf("%hu", fila[i].numero);
+            primeiro = false;
         }
     }
-    printf("\n");
 
+    printf("\n");
     return 0;
 }
