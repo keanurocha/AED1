@@ -1,42 +1,59 @@
 #include <stdio.h>
-#include <stdlib.h>
 
-// Função de comparação para o qsort (ordem decrescente)
-int compara(const void *a, const void *b) {
-    return (*(int*)b - *(int*)a);
-}
+void selectionSort(short *, unsigned short);
+int alunosSemTroca;
 
-int main() {
-    int N;
-    scanf("%d", &N);
+int main(void) {
 
-    while (N--) {
-        int M;
-        scanf("%d", &M);
+    unsigned short numCasos;
+    unsigned short numAlunos;
+    int i;
 
-        int notas[1000];
-        int notasOrdenadas[1000];
+    scanf("%hu", &numCasos);
 
-        // Lê as notas e cria uma cópia para ordenar
-        for (int i = 0; i < M; i++) {
-            scanf("%d", &notas[i]);
-            notasOrdenadas[i] = notas[i];
+    while (numCasos--) {
+
+        scanf("%hu", &numAlunos);
+
+        short filaOriginal[numAlunos];
+        short filaOrdenada[numAlunos];
+
+        for (i = 0; i < numAlunos; i++) {
+            scanf("%hd", &filaOriginal[i]);
+            filaOrdenada[i] = filaOriginal[i];
         }
 
-        // Ordena a cópia em ordem decrescente (maior nota primeiro)
-        qsort(notasOrdenadas, M, sizeof(int), compara);
+        alunosSemTroca = 0;
+        selectionSort(filaOrdenada, numAlunos);
 
-        // Compara a fila original com a ordenada
-        int naoMudaram = 0;
-        for (int i = 0; i < M; i++) {
-            // Se a nota na posição i for igual nas duas listas, o aluno não mudou de lugar
-            if (notas[i] == notasOrdenadas[i]) {
-                naoMudaram++;
-            }
+        for (i = 0; i < numAlunos; i++) {
+            if (filaOriginal[i] == filaOrdenada[i])
+                alunosSemTroca++;
         }
 
-        printf("%d\n", naoMudaram);
+        printf("%d\n", alunosSemTroca);
     }
 
     return 0;
+}
+
+void selectionSort(short *vetor, unsigned short tamanho) {
+
+    unsigned short i, j, indiceMaior;
+    short temp;
+
+    for (i = 0; i < tamanho - 1; i++) {
+
+        indiceMaior = i;
+        for (j = i + 1; j < tamanho; j++) {
+            if (vetor[j] > vetor[indiceMaior])
+                indiceMaior = j;
+        }
+
+        if (i != indiceMaior) {
+            temp = vetor[i];
+            vetor[i] = vetor[indiceMaior];
+            vetor[indiceMaior] = temp;
+        }
+    }
 }
