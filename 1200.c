@@ -2,125 +2,115 @@
 #include <stdlib.h>
 #include <string.h>
 
-// Definição da estrutura do nó da árvore
-typedef struct Node {
-    char data;
-    struct Node *left;
-    struct Node *right;
-} Node;
+typedef struct No {
+    char chave;
+    struct No *esq, *dir;
+} No;
 
-// Função para criar um novo nó
-Node* createNode(char data) {
-    Node* newNode = (Node*)malloc(sizeof(Node));
-    newNode->data = data;
-    newNode->left = NULL;
-    newNode->right = NULL;
-    return newNode;
+No* novo_no(char chave) {
+    No* no = (No*)malloc(sizeof(No));
+    no->chave = chave;
+    no->esq = no->dir = NULL;
+    return no;
 }
 
-// Função para inserir um elemento na árvore
-Node* insert(Node* root, char data) {
-    if (root == NULL) {
-        return createNode(data);
-    }
-    if (data < root->data) {
-        root->left = insert(root->left, data);
-    } else if (data > root->data) {
-        root->right = insert(root->right, data);
-    }
-    return root;
+No* inserir(No* raiz, char chave) {
+    if (!raiz) return novo_no(chave);
+
+    if (chave < raiz->chave)
+        raiz->esq = inserir(raiz->esq, chave);
+    else if (chave > raiz->chave)
+        raiz->dir = inserir(raiz->dir, chave);
+
+    return raiz; // sem repetição
 }
 
-// Função de pesquisa
-int search(Node* root, char data) {
-    if (root == NULL) {
-        return 0; // Não encontrado
-    }
-    if (root->data == data) {
-        return 1; // Encontrado
-    }
-    if (data < root->data) {
-        return search(root->left, data);
+int pesquisar(No* raiz, char chave) {
+    if (!raiz) return 0;
+    if (chave == raiz->chave) return 1;
+    if (chave < raiz->chave) return pesquisar(raiz->esq, chave);
+    return pesquisar(raiz->dir, chave);
+}
+
+void imprimir_infixa(No* raiz, int *primeiro) {
+    if (!raiz) return;
+
+    imprimir_infixa(raiz->esq, primeiro);
+
+    if (*primeiro) {
+        printf("%c", raiz->chave);
+        *primeiro = 0;
     } else {
-        return search(root->right, data);
+        printf(" %c", raiz->chave);
     }
+
+    imprimir_infixa(raiz->dir, primeiro);
 }
 
-// Percurso Infixo (Esquerda, Raiz, Direita)
-void infix(Node* root, int* first) {
-    if (root == NULL) return;
-    infix(root->left, first);
-    
-    if (!*first) printf(" ");
-    printf("%c", root->data);
-    *first = 0;
-    
-    infix(root->right, first);
+void imprimir_prefixa(No* raiz, int *primeiro) {
+    if (!raiz) return;
+
+    if (*primeiro) {
+        printf("%c", raiz->chave);
+        *primeiro = 0;
+    } else {
+        printf(" %c", raiz->chave);
+    }
+
+    imprimir_prefixa(raiz->esq, primeiro);
+    imprimir_prefixa(raiz->dir, primeiro);
 }
 
-// Percurso Prefixo (Raiz, Esquerda, Direita)
-void prefix(Node* root, int* first) {
-    if (root == NULL) return;
-    
-    if (!*first) printf(" ");
-    printf("%c", root->data);
-    *first = 0;
-    
-    prefix(root->left, first);
-    prefix(root->right, first);
-}
+void imprimir_posfixa(No* raiz, int *primeiro) {
+    if (!raiz) return;
 
-// Percurso Posfixo (Esquerda, Direita, Raiz)
-void postfix(Node* root, int* first) {
-    if (root == NULL) return;
-    postfix(root->left, first);
-    postfix(root->right, first);
-    
-    if (!*first) printf(" ");
-    printf("%c", root->data);
-    *first = 0;
-}
+    imprimir_posfixa(raiz->esq, primeiro);
+    imprimir_posfixa(raiz->dir, primeiro);
 
-// Função para liberar a memória da árvore (opcional para maratona, mas boa prática)
-void freeTree(Node* root) {
-    if (root == NULL) return;
-    freeTree(root->left);
-    freeTree(root->right);
-    free(root);
+    if (*primeiro) {
+        printf("%c", raiz->chave);
+        *primeiro = 0;
+    } else {
+        printf(" %c", raiz->chave);
+    }
 }
 
 int main() {
-    Node* root = NULL;
-    char command[10];
-    char element;
+    No* raiz = NULL;
+    char comando[20], letra;
 
-    // Lê os comandos até o fim do arquivo (EOF)
-    while (scanf("%s", command) != EOF) {
-        if (strcmp(command, "I") == 0) {
-            scanf(" %c", &element);
-            root = insert(root, element);
-        } else if (strcmp(command, "INFIXA") == 0) {
-            int first = 1;
-            infix(root, &first);
+    while (scanf("%s", comando) != EOF) {
+        if (strcmp(comando, "I") == 0) {
+            scanf(" %c", &letra);
+            raiz = inserir(raiz, letra);
+        }
+
+        else if (strcmp(comando, "P") == 0) {
+            scanf(" %c", &letra);
+            if (pesquisar(raiz, letra))
+                printf("%c existe\n", letra);
+            else
+                printf("%c nao existe\n", letra);
+        }
+
+        else if (strcmp(comando, "INFIXA") == 0) {
+            int primeiro = 1;
+            imprimir_infixa(raiz, &primeiro);
             printf("\n");
-        } else if (strcmp(command, "PREFIXA") == 0) {
-            int first = 1;
-            prefix(root, &first);
+        }
+
+        else if (strcmp(comando, "PREFIXA") == 0) {
+            int primeiro = 1;
+            imprimir_prefixa(raiz, &primeiro);
             printf("\n");
-        } else if (strcmp(command, "POSFIXA") == 0) {
-            int first = 1;
-            postfix(root, &first);
+        }
+
+        else if (strcmp(comando, "POSFIXA") == 0) {
+            int primeiro = 1;
+            imprimir_posfixa(raiz, &primeiro);
             printf("\n");
-        } else if (strcmp(command, "P") == 0) {
-            scanf(" %c", &element);
-            if (search(root, element)) {
-                printf("%c existe\n", element);
-            } else {
-                printf("%c nao existe\n", element);
-            }
         }
     }
 
-    freeTree(root);
     return 0;
 }
