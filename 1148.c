@@ -1,104 +1,107 @@
 #include <stdio.h>
+#include <stdlib.h>
+#include <limits.h>
 
-#define MAX_N 505
-#define INF 0x3f3f3f3f // Um valor grande para representar infinito
+#define INF 1000000000
 
-int adj[MAX_N][MAX_N];
-int dist[MAX_N];
-int visited[MAX_N];
 
-// Algoritmo de Dijkstra para encontrar o menor tempo entre origem e destino
-int dijkstra(int origem, int destino, int n) {
-    // Inicialização
-    for (int i = 1; i <= n; i++) {
-        dist[i] = INF;
-        visited[i] = 0;
-    }
-    dist[origem] = 0;
+typedef struct Aresta {
+    int destino;
+    int peso;
+    struct Aresta *prox;
+} Aresta;
 
-    for (int i = 0; i < n; i++) {
-        int u = -1;
-        int min_dist = INF;
 
-        // Escolhe o vértice não visitado com a menor distância
-        for (int j = 1; j <= n; j++) {
-            if (!visited[j] && dist[j] < min_dist) {
-                min_dist = dist[j];
-                u = j;
-            }
-        }
+Aresta *grafo[510];
 
-        // Se não conseguiu alcançar nenhum outro vértice ou chegou no destino
-        if (u == -1 || dist[u] == INF) break;
-        
-        visited[u] = 1;
-        if (u == destino) return dist[destino];
 
-        // Relaxamento das arestas vizinhas
-        for (int v = 1; v <= n; v++) {
-            if (adj[u][v] != INF) {
-                if (dist[u] + adj[u][v] < dist[v]) {
-                    dist[v] = dist[u] + adj[u][v];
-                }
-            }
-        }
-    }
-
-    return dist[destino];
+void adicionar_aresta(int origem, int destino, int peso) {
+    Aresta *nova = (Aresta*) malloc(sizeof(Aresta));
+    nova->destino = destino;
+    nova->peso = peso;
+    nova->prox = grafo[origem];
+    grafo[origem] = nova;
 }
 
+int dijkstra(int inicio, int fim, int n) {
+    int dist[510], visitado[510];
+    for (int i = 1; i <= n; i++) {
+        dist[i] = INF;
+        visitado[i] = 0;
+    }
+
+    dist[inicio] = 0;
+
+    for (int i = 1; i <= n; i++) {
+        int menor = -1;
+
+      
+        for (int j = 1; j <= n; j++) {
+            if (!visitado[j] && (menor == -1 || dist[j] < dist[menor])) {
+                menor = j;
+            }
+        }
+
+        if (menor == -1) break;
+        visitado[menor] = 1;
+
+
+        Aresta *aux = grafo[menor];
+        while (aux != NULL) {
+            if (dist[menor] + aux->peso < dist[aux->destino]) {
+                dist[aux->destino] = dist[menor] + aux->peso;
+            }
+            aux = aux->prox;
+        }
+    }
+
+    return dist[fim];
+}
+
+
 int main() {
-    int N, E;
+    int n, m;
 
-    // Loop principal dos casos de teste. Para quando N e E forem 0.
-    while (scanf("%d %d", &N, &E) && (N != 0 || E != 0)) {
-        
-        // Inicializa a matriz de adjacência com INF
-        for (int i = 1; i <= N; i++) {
-            for (int j = 1; j <= N; j++) {
-                adj[i][j] = INF;
-            }
-            adj[i][i] = 0; // Distância para si mesmo é 0
-        }
+    while (1) {
+        scanf("%d %d", &n, &m);
+        if (n == 0 && m == 0) break;
 
-        // Leitura dos acordos de envio (arestas)
-        for (int i = 0; i < E; i++) {
-            int x, y, h;
-            scanf("%d %d %d", &x, &y, &h);
-            // Se houver múltiplas arestas, ficamos com a de menor custo (embora o problema não especifique)
-            if (adj[x][y] > h) {
-                adj[x][y] = h;
-            }
-        }
 
-        // Regra do "Mesmo País": Se vai e volta, o custo é 0
-        for (int i = 1; i <= N; i++) {
-            for (int j = 1; j <= N; j++) {
-                if (i != j && adj[i][j] != INF && adj[j][i] != INF) {
-                    adj[i][j] = 0;
-                    adj[j][i] = 0;
-                }
-            }
-        }
+        for (int i = 1; i <= n; i++) grafo[i] = NULL;
 
-        int K;
-        scanf("%d", &K);
 
-        // Processamento das consultas
-        while (K--) {
-            int O, D;
-            scanf("%d %d", &O, &D);
+        int reverso[510][510] = {0};
 
-            int resultado = dijkstra(O, D, N);
+      
+        for (int i = 0; i < m; i++) {
+            int u, v, p;
+            scanf("%d %d %d", &u, &v, &p);
 
-            if (resultado == INF) {
-                printf("Nao e possivel entregar a carta\n");
+          
+            if (reverso[v][u]) {
+                adicionar_aresta(u, v, 0);
+                adicionar_aresta(v, u, 0);
             } else {
-                printf("%d\n", resultado);
+                adicionar_aresta(u, v, p);
+                reverso[u][v] = 1;
             }
         }
-        
-        // Linha em branco após cada caso de teste
+
+        int consultas;
+        scanf("%d", &consultas);
+
+        for (int i = 0; i < consultas; i++) {
+            int origem, destino;
+            scanf("%d %d", &origem, &destino);
+
+            int resposta = dijkstra(origem, destino, n);
+
+            if (resposta >= INF)
+                printf("Nao e possivel entregar a carta\n");
+            else
+                printf("%d\n", resposta);
+        }
+
         printf("\n");
     }
 
