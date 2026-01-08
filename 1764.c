@@ -1,79 +1,71 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#define MAX_M 40005 // Máximo de cidades
-#define MAX_N 50005 // Máximo de estradas
-
 typedef struct {
-    int u, v, w;
-} Edge;
+    int u, v, peso;
+} Aresta;
 
-Edge edges[MAX_N];
-int parent[MAX_M];
+int pai[200005], tamanho[200005];
 
-// Função de comparação para o qsort (ordena por peso crescente)
-int compare(const void *a, const void *b) {
-    return ((Edge*)a)->w - ((Edge*)b)->w;
+int encontrar(int x) {
+    if (pai[x] == x) return x;
+    return pai[x] = encontrar(pai[x]);
 }
 
-// Função Find do Union-Find (com compressão de caminho)
-// Encontra o representante do conjunto ao qual o elemento 'i' pertence
-int find(int i) {
-    if (parent[i] == i)
-        return i;
-    return parent[i] = find(parent[i]);
-}
+void unir(int a, int b) {
+    a = encontrar(a);
+    b = encontrar(b);
+    if (a == b) return;
 
-// Função Union do Union-Find
-// Une os conjuntos de 'i' e 'j'
-void unite(int i, int j) {
-    int root_i = find(i);
-    int root_j = find(j);
-    if (root_i != root_j) {
-        parent[root_i] = root_j;
+    if (tamanho[a] < tamanho[b]) {
+        pai[a] = b;
+        tamanho[b] += tamanho[a];
+    } else {
+        pai[b] = a;
+        tamanho[a] += tamanho[b];
     }
 }
 
+int comparar(const void *a, const void *b) {
+    return ((Aresta*)a)->peso - ((Aresta*)b)->peso;
+}
+
 int main() {
-    int M, N;
+    int n, m;
 
-    // Loop principal: lê M e N. Para quando ambos forem 0.
-    while (scanf("%d %d", &M, &N) && (M != 0 || N != 0)) {
-        
-        // Leitura das arestas (rotas)
-        for (int i = 0; i < N; i++) {
-            scanf("%d %d %d", &edges[i].u, &edges[i].v, &edges[i].w);
+    while (1) {
+        scanf("%d %d", &n, &m);
+        if (n == 0 && m == 0) break;
+
+        for (int i = 0; i < n; i++) {
+            pai[i] = i;
+            tamanho[i] = 1;
         }
 
-        // Ordena as arestas pelo peso (distância)
-        qsort(edges, N, sizeof(Edge), compare);
+        Aresta *arestas = (Aresta*) malloc(m * sizeof(Aresta));
 
-        // Inicializa o Union-Find: cada cidade é seu próprio pai inicialmente
-        for (int i = 0; i < M; i++) {
-            parent[i] = i;
+        for (int i = 0; i < m; i++) {
+            scanf("%d %d %d", &arestas[i].u, &arestas[i].v, &arestas[i].peso);
         }
 
-        int total_distance = 0;
-        int edges_count = 0;
+        qsort(arestas, m, sizeof(Aresta), comparar);
 
-        // Algoritmo de Kruskal
-        for (int i = 0; i < N; i++) {
-            int u = edges[i].u;
-            int v = edges[i].v;
-            int w = edges[i].w;
+        long long custo_mst = 0;
 
-            // Verifica se u e v já estão conectados
-            if (find(u) != find(v)) {
-                unite(u, v);       // Une os conjuntos
-                total_distance += w; // Soma a distância
-                edges_count++;
+        for (int i = 0; i < m; i++) {
+            int u = arestas[i].u;
+            int v = arestas[i].v;
+            int peso = arestas[i].peso;
+
+            if (encontrar(u) != encontrar(v)) {
+                unir(u, v);
+                custo_mst += peso;
             }
-            
-            // Otimização: Se já selecionamos M-1 arestas, conectamos todas as cidades
-            if (edges_count == M - 1) break; 
         }
 
-        printf("%d\n", total_distance);
+        printf("%lld\n", custo_mst);
+
+        free(arestas);
     }
 
     return 0;
