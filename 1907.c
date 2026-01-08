@@ -1,62 +1,51 @@
 #include <stdio.h>
 
-#define MAX 1025
-#define MAX_QUEUE (MAX * MAX)
+#define DIM 1030
+#define FILA_TAM (DIM * DIM)
 
-char grid[MAX][MAX];
-int qx[MAX_QUEUE];
-int qy[MAX_QUEUE];
+char mapa[DIM][DIM];
+int posX[FILA_TAM];
+int posY[FILA_TAM];
 
 int main() {
-    int N, M;
-    
-    // Leitura das dimensões
-    scanf("%d %d", &N, &M);
+    int h, w;
+    if (scanf("%d %d", &h, &w) != 2) return 0;
 
-    // Leitura da matriz
-    for (int i = 0; i < N; i++) {
-        scanf("%s", grid[i]);
+    for (int i = 0; i < h; i++) {
+        scanf("%s", mapa[i]);
     }
 
-    int clicks = 0;
-    
-    // Direções: Cima, Baixo, Esquerda, Direita
-    int dx[] = {-1, 1, 0, 0};
-    int dy[] = {0, 0, -1, 1};
+    int cliques = 0;
+    int movX[] = {1, -1, 0, 0};
+    int movY[] = {0, 0, 1, -1};
 
-    // Percorre toda a matriz
-    for (int i = 0; i < N; i++) {
-        for (int j = 0; j < M; j++) {
-            // Se encontrar um pixel branco, inicia uma nova coloração (novo clique)
-            if (grid[i][j] == '.') {
-                clicks++;
+    for (int i = 0; i < h; i++) {
+        for (int j = 0; j < w; j++) {
+            if (mapa[i][j] == '.') {
+                cliques++;
 
-                // BFS para preencher toda a região conectada
-                int head = 0;
-                int tail = 0;
-                
-                // Adiciona o ponto inicial na fila e marca como visitado ('o')
-                qx[tail] = i;
-                qy[tail] = j;
-                tail++;
-                grid[i][j] = 'o'; 
+                int inicio = 0;
+                int fim = 0;
 
-                while (head < tail) {
-                    int cx = qx[head];
-                    int cy = qy[head];
-                    head++;
+                posX[fim] = i;
+                posY[fim] = j;
+                fim++;
+                mapa[i][j] = '*';
 
-                    // Verifica os 4 vizinhos
+                while (inicio < fim) {
+                    int atualX = posX[inicio];
+                    int atualY = posY[inicio];
+                    inicio++;
+
                     for (int k = 0; k < 4; k++) {
-                        int nx = cx + dx[k];
-                        int ny = cy + dy[k];
+                        int nx = atualX + movX[k];
+                        int ny = atualY + movY[k];
 
-                        // Se o vizinho é válido e é um pixel branco
-                        if (nx >= 0 && nx < N && ny >= 0 && ny < M && grid[nx][ny] == '.') {
-                            grid[nx][ny] = 'o'; // Marca como visitado imediatamente
-                            qx[tail] = nx;
-                            qy[tail] = ny;
-                            tail++;
+                        if (nx >= 0 && nx < h && ny >= 0 && ny < w && mapa[nx][ny] == '.') {
+                            mapa[nx][ny] = '*';
+                            posX[fim] = nx;
+                            posY[fim] = ny;
+                            fim++;
                         }
                     }
                 }
@@ -64,7 +53,7 @@ int main() {
         }
     }
 
-    printf("%d\n", clicks);
+    printf("%d\n", cliques);
 
     return 0;
 }
