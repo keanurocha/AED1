@@ -22,7 +22,7 @@ No* inserir(No* raiz, char chave) {
     else if (chave > raiz->chave)
         raiz->dir = inserir(raiz->dir, chave);
 
-    return raiz; // sem repetição
+    return raiz;
 }
 
 int pesquisar(No* raiz, char chave) {
