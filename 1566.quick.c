@@ -1,58 +1,45 @@
 #include <stdio.h>
-#include <stdlib.h>
 
-void swap(int *a, int *b) {
-    int t = *a;
-    *a = *b;
-    *b = t;
-}
+int v[3000005];
 
-int partition(int arr[], int low, int high) {
-    int pivot = arr[high];
-    int i = (low - 1);
+void quickSort(int v[], int ini, int fim) {
+    if (ini < fim) {
+        int pivo = v[(ini + fim) / 2];
+        int i = ini, j = fim, temp;
 
-    for (int j = low; j <= high - 1; j++) {
-        if (arr[j] < pivot) {
-            i++;
-            swap(&arr[i], &arr[j]);
+        while (i <= j) {
+            while (v[i] < pivo) i++;
+            while (v[j] > pivo) j--;
+            if (i <= j) {
+                temp = v[i];
+                v[i] = v[j];
+                v[j] = temp;
+                i++;
+                j--;
+            }
         }
-    }
-    swap(&arr[i + 1], &arr[high]);
-    return (i + 1);
-}
 
-void quickSort(int arr[], int low, int high) {
-    if (low < high) {
-        int pi = partition(arr, low, high);
-        quickSort(arr, low, pi - 1);
-        quickSort(arr, pi + 1, high);
+        if (ini < j) quickSort(v, ini, j);
+        if (i < fim) quickSort(v, i, fim);
     }
 }
 
-int main() {
-    int NC;
-    scanf("%d", &NC);
+int main(void) {
+    int t, n;
+    if (scanf("%d", &t) != 1) return 0;
 
-    while (NC--) {
-        int N;
-        scanf("%d", &N);
+    while (t--) {
+        if (scanf("%d", &n) != 1) break;
+        
+        for (int i = 0; i < n; i++)
+            scanf("%d", &v[i]);
 
-        int *alturas = (int *)malloc(N * sizeof(int));
-        if (alturas == NULL) {
-            return 1;
+        quickSort(v, 0, n - 1);
+
+        for (int i = 0; i < n; i++) {
+            printf("%d%s", v[i], (i == n - 1) ? "" : " ");
         }
-
-        for (int i = 0; i < N; i++) {
-            scanf("%d", &alturas[i]);
-        }
-
-        quickSort(alturas, 0, N - 1);
-
-        for (int i = 0; i < N; i++) {
-            printf("%d%c", alturas[i], (i == N - 1) ? '\n' : ' ');
-        }
-
-        free(alturas);
+        printf("\n");
     }
 
     return 0;
