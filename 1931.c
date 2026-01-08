@@ -1,130 +1,95 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <limits.h>
 
-#define MAX_C 10005
-#define INF 0x3f3f3f3f
+#define INF 1000000000
 
-// Estrutura para representar o estado na fila de prioridade
-typedef struct {
+typedef struct Ligacao {
+    int alvo;
     int custo;
-    int u;
-    int paridade; // 0 para par, 1 para ímpar
-} State;
+    struct Ligacao *prox;
+} Ligacao;
 
-// Estrutura para arestas (Lista de Adjacência)
-typedef struct Edge {
-    int v;
-    int peso;
-    struct Edge* next;
-} Edge;
+Ligacao *mapa[10005];
 
-Edge* adj[MAX_C];
-int dist[MAX_C][2]; // dist[cidade][0] = custo par, dist[cidade][1] = custo ímpar
+typedef struct {
+    int v, d, p;
+} Item;
 
-// Min-Heap (Fila de Prioridade)
-State heap[MAX_C * 2 * 10]; // Tamanho seguro
-int heapSize = 0;
+Item heap[500005];
+int h_tam = 0;
 
-void push(int custo, int u, int paridade) {
-    int i = heapSize++;
-    heap[i].custo = custo;
-    heap[i].u = u;
-    heap[i].paridade = paridade;
-    
-    while (i > 0) {
-        int p = (i - 1) / 2;
-        if (heap[p].custo <= heap[i].custo) break;
-        State temp = heap[i];
-        heap[i] = heap[p];
-        heap[p] = temp;
-        i = p;
+void inserir(int v, int d, int p) {
+    int i = ++h_tam;
+    while (i > 1 && d < heap[i / 2].d) {
+        heap[i] = heap[i / 2];
+        i /= 2;
     }
+    heap[i].v = v;
+    heap[i].d = d;
+    heap[i].p = p;
 }
 
-State pop() {
-    State ret = heap[0];
-    heap[0] = heap[--heapSize];
-    int i = 0;
-    while (i * 2 + 1 < heapSize) {
-        int child = i * 2 + 1;
-        if (child + 1 < heapSize && heap[child + 1].custo < heap[child].custo) {
-            child++;
-        }
-        if (heap[i].custo <= heap[child].custo) break;
-        State temp = heap[i];
-        heap[i] = heap[child];
-        heap[child] = temp;
-        i = child;
+Item extrair() {
+    Item min = heap[1];
+    Item ultimo = heap[h_tam--];
+    int i = 1, filho;
+    while (i * 2 <= h_tam) {
+        filho = i * 2;
+        if (filho != h_tam && heap[filho + 1].d < heap[filho].d) filho++;
+        if (ultimo.d > heap[filho].d) heap[i] = heap[filho];
+        else break;
+        i = filho;
     }
-    return ret;
+    heap[i] = ultimo;
+    return min;
 }
 
-void addEdge(int u, int v, int w) {
-    Edge* newNode = (Edge*)malloc(sizeof(Edge));
-    newNode->v = v;
-    newNode->peso = w;
-    newNode->next = adj[u];
-    adj[u] = newNode;
+void nova_rota(int u, int v, int p) {
+    Ligacao *n = (Ligacao*) malloc(sizeof(Ligacao));
+    n->alvo = v;
+    n->custo = p;
+    n->prox = mapa[u];
+    mapa[u] = n;
 }
 
 int main() {
-    int C, V;
-    
-    // Leitura até EOF não especificada, mas comum em maratonas.
-    // O problema diz "diversas linhas", mas o formato da primeira linha sugere um caso único ou loop.
-    // Vamos assumir loop para garantir.
-    if (scanf("%d %d", &C, &V) != EOF) {
-        
-        // Inicialização
-        for (int i = 0; i <= C; i++) {
-            adj[i] = NULL;
-            dist[i][0] = INF;
-            dist[i][1] = INF;
-        }
+    int c, v_total;
+    if (scanf("%d %d", &c, &v_total) != 2) return 0;
 
-        // Leitura das arestas
-        for (int i = 0; i < V; i++) {
-            int u, v, w;
-            scanf("%d %d %d", &u, &v, &w);
-            addEdge(u, v, w);
-            addEdge(v, u, w);
-        }
+    for (int i = 1; i <= c; i++) mapa[i] = NULL;
 
-        // Dijkstra
-        // Começamos na cidade 1, custo 0, 0 passos (par)
-        dist[1][0] = 0;
-        push(0, 1, 0);
+    for (int i = 0; i < v_total; i++) {
+        int u, v, p;
+        scanf("%d %d %d", &u, &v, &p);
+        nova_rota(u, v, p);
+        nova_rota(v, u, p);
+    }
 
-        while (heapSize > 0) {
-            State atual = pop();
-            int u = atual.u;
-            int custo = atual.custo;
-            int paridade = atual.paridade;
+    int custos[10005][2];
+    for (int i = 1; i <= c; i++) custos[i][0] = custos[i][1] = INF;
 
-            if (custo > dist[u][paridade]) continue;
+    custos[1][0] = 0;
+    inserir(1, 0, 0);
 
-            Edge* edge = adj[u];
-            while (edge != NULL) {
-                int v = edge->v;
-                int peso = edge->peso;
-                int novaParidade = 1 - paridade; // Se era par(0) vira ímpar(1), e vice-versa
+    while (h_tam > 0) {
+        Item atual = extrair();
 
-                if (dist[u][paridade] + peso < dist[v][novaParidade]) {
-                    dist[v][novaParidade] = dist[u][paridade] + peso;
-                    push(dist[v][novaParidade], v, novaParidade);
-                }
-                edge = edge->next;
+        if (atual.d > custos[atual.v][atual.p]) continue;
+
+        for (Ligacao *e = mapa[atual.v]; e != NULL; e = e->prox) {
+            int prox_v = e->alvo;
+            int n_peso = atual.d + e->custo;
+            int n_pari = 1 - atual.p;
+
+            if (n_peso < custos[prox_v][n_pari]) {
+                custos[prox_v][n_pari] = n_peso;
+                inserir(prox_v, n_peso, n_pari);
             }
         }
-
-        // Resultado: custo para chegar em C com paridade 0 (par)
-        if (dist[C][0] == INF) {
-            printf("-1\n");
-        } else {
-            printf("%d\n", dist[C][0]);
-        }
     }
+
+    if (custos[c][0] == INF) printf("-1\n");
+    else printf("%d\n", custos[c][0]);
 
     return 0;
 }
