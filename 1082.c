@@ -2,79 +2,54 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define MAX_V 30
+int g[30][30], vis[30], lst[30];
+int n_v, n_e, p;
 
-// Matriz de adjacência e vetor de visitados
-int adj[MAX_V][MAX_V];
-int visited[MAX_V];
-int numVertices, numArestas;
-
-// Vetor auxiliar para armazenar e ordenar os nós de um componente
-int componenteAtual[MAX_V];
-int tamComponente;
-
-// Função de comparação para o qsort
-int compare(const void * a, const void * b) {
+int cmp(const void *a, const void *b) {
     return (*(int*)a - *(int*)b);
 }
 
-// Busca em Profundidade (DFS)
-void dfs(int u) {
-    visited[u] = 1;
-    componenteAtual[tamComponente++] = u; // Adiciona o nó à lista do componente atual
-
-    for (int v = 0; v < numVertices; v++) {
-        if (adj[u][v] && !visited[v]) {
-            dfs(v);
+void explorar(int u) {
+    vis[u] = 1;
+    lst[p++] = u;
+    for (int v = 0; v < n_v; v++) {
+        if (g[u][v] && !vis[v]) {
+            explorar(v);
         }
     }
 }
 
 int main() {
-    int N, caso = 1;
-    scanf("%d", &N);
+    int t, idx = 1;
+    if (scanf("%d", &t) != 1) return 0;
 
-    while (N--) {
-        scanf("%d %d", &numVertices, &numArestas);
+    while (t--) {
+        scanf("%d %d", &n_v, &n_e);
+        memset(g, 0, sizeof(g));
+        memset(vis, 0, sizeof(vis));
 
-        // Inicializa as estruturas de dados para o caso atual
-        memset(adj, 0, sizeof(adj));
-        memset(visited, 0, sizeof(visited));
-
-        // Leitura das arestas
-        for (int i = 0; i < numArestas; i++) {
-            char u, v;
-            scanf(" %c %c", &u, &v); // Espaço antes de %c para ignorar quebras de linha
-            adj[u - 'a'][v - 'a'] = 1;
-            adj[v - 'a'][u - 'a'] = 1;
+        for (int i = 0; i < n_e; i++) {
+            char o, d;
+            scanf(" %c %c", &o, &d);
+            g[o - 'a'][d - 'a'] = g[d - 'a'][o - 'a'] = 1;
         }
 
-        printf("Case #%d:\n", caso++);
+        printf("Case #%d:\n", idx++);
+        int c_count = 0;
 
-        int qtdComponentes = 0;
-
-        // Itera sobre todos os vértices possíveis ('a' até o limite V)
-        for (int i = 0; i < numVertices; i++) {
-            if (!visited[i]) {
-                qtdComponentes++;
-                tamComponente = 0;
-                
-                // Inicia a busca para encontrar todos os nós deste componente
-                dfs(i);
-                
-                // Ordena os nós do componente para garantir ordem crescente (a,b,c...)
-                qsort(componenteAtual, tamComponente, sizeof(int), compare);
-
-                // Imprime o componente
-                for (int j = 0; j < tamComponente; j++) {
-                    printf("%c,", componenteAtual[j] + 'a');
+        for (int i = 0; i < n_v; i++) {
+            if (!vis[i]) {
+                p = 0;
+                explorar(i);
+                qsort(lst, p, sizeof(int), cmp);
+                for (int j = 0; j < p; j++) {
+                    printf("%c,", lst[j] + 'a');
                 }
                 printf("\n");
+                c_count++;
             }
         }
-
-        printf("%d connected components\n\n", qtdComponentes);
+        printf("%d connected components\n\n", c_count);
     }
-
     return 0;
 }
